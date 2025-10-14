@@ -38,6 +38,8 @@ var ViewPager = createReactClass({
       PropTypes.func,
       PropTypes.bool
     ]),
+    dotColor: PropTypes.string,
+    activeDotColor: PropTypes.string,
     isLoop: PropTypes.bool,
     locked: PropTypes.bool,
     autoPlay: PropTypes.bool,
@@ -341,6 +343,8 @@ var ViewPager = createReactClass({
                             activePage: this.state.currentPage,
                             scrollValue: this.state.scrollValue,
                             scrollOffset: this.childIndex,
+                            dotColor: this.props.dotColor,
+                            activeDotColor: this.props.activeDotColor,
                           })}
       </View>
     );
