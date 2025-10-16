@@ -48,24 +48,65 @@ var styles = StyleSheet.create({
   },
 });
 
+// Pre-flatten
+var baseDotStyle = StyleSheet.flatten(styles.dot);
+var baseCurDotStyle = StyleSheet.flatten(styles.curDot);
+
 var DefaultViewPageIndicator = createReactClass({
   propTypes: {
     goToPage: PropTypes.func,
     activePage: PropTypes.number,
-    pageCount: PropTypes.number
+    pageCount: PropTypes.number,
+    dotColor: PropTypes.string,
+    activeDotColor: PropTypes.string,
+    scrollOffset: PropTypes.number,
+    scrollValue: PropTypes.object,
   },
 
   getInitialState() {
+    var dotStyle = this.props.dotColor ? 
+      Object.assign({}, baseDotStyle, {backgroundColor: this.props.dotColor}) : 
+      baseDotStyle;
+    
+    var curDotStaticStyle = this.props.activeDotColor ? 
+      Object.assign({}, baseCurDotStyle, {backgroundColor: this.props.activeDotColor}) : 
+      baseCurDotStyle;
+
     return {
       viewWidth: 0,
+      dotStyle: dotStyle,
+      curDotStaticStyle: curDotStaticStyle,
     };
   },
 
+  componentWillReceiveProps(nextProps) {
+    const dotColorChanged = nextProps.dotColor !== this.props.dotColor;
+    const activeDotColorChanged = nextProps.activeDotColor !== this.props.activeDotColor;
+
+    if (dotColorChanged || activeDotColorChanged) {
+      var newState = {};
+      
+      if (dotColorChanged) {
+        newState.dotStyle = nextProps.dotColor ? 
+          Object.assign({}, baseDotStyle, {backgroundColor: nextProps.dotColor}) : 
+          baseDotStyle;
+      }
+
+      if (activeDotColorChanged) {
+        newState.curDotStaticStyle = nextProps.activeDotColor ? 
+          Object.assign({}, baseCurDotStyle, {backgroundColor: nextProps.activeDotColor}) : 
+          baseCurDotStyle;
+      }
+
+      this.setState(newState);
+    }
+  },
+
   renderIndicator(page) {
-    //var isTabActive = this.props.activePage === page;
+    // Use the pre-computed style object directly
     return (
       <TouchableOpacity style={styles.tab} key={'idc_' + page} onPress={() => this.props.goToPage(page)}>
-        <View style={styles.dot} />
+        <View style={this.state.dotStyle} />
       </TouchableOpacity>
     );
   },
@@ -79,12 +120,14 @@ var DefaultViewPageIndicator = createReactClass({
     var offsetX = itemWidth * (this.props.activePage - this.props.scrollOffset);
     var left = this.props.scrollValue.interpolate({
       inputRange: [0, 1], outputRange: [offsetX, offsetX + itemWidth]
-    })
+    });
 
     var indicators = [];
     for (var i = 0; i < pageCount; i++) {
-      indicators.push(this.renderIndicator(i))
+      indicators.push(this.renderIndicator(i));
     }
+
+    var curDotStyle = [this.state.curDotStaticStyle, {left: left}];
 
     return (
       <View style={styles.tabs}
@@ -98,7 +141,7 @@ var DefaultViewPageIndicator = createReactClass({
             });
           }}>
         {indicators}
-        <Animated.View style={[styles.curDot, {left}]} />
+        <Animated.View style={curDotStyle} />
       </View>
     );
   },

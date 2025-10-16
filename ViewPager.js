@@ -37,7 +37,9 @@ var ViewPager = createReactClass({
     renderPageIndicator: PropTypes.oneOfType([
       PropTypes.func,
       PropTypes.bool
-    ]),
+    ]), 
+    dotColor: PropTypes.string,
+    activeDotColor: PropTypes.string,
     isLoop: PropTypes.bool,
     locked: PropTypes.bool,
     autoPlay: PropTypes.bool,
@@ -96,9 +98,12 @@ var ViewPager = createReactClass({
       // Claim responder if it's a horizontal pan
       onMoveShouldSetPanResponder: (e, gestureState) => {
         if (Math.abs(gestureState.dx) > Math.abs(gestureState.dy)) {
-          if (/* (gestureState.moveX <= this.props.edgeHitWidth ||
+          if (
+            /* (gestureState.moveX <= this.props.edgeHitWidth ||
               gestureState.moveX >= deviceWidth - this.props.edgeHitWidth) && */
-                this.props.locked !== true && !this.fling) {
+            this.props.locked !== true &&
+            !this.fling
+          ) {
             this.props.hasTouch && this.props.hasTouch(true);
             return true;
           }
@@ -121,7 +126,7 @@ var ViewPager = createReactClass({
       this.childIndex = 1;
       this.state.scrollValue.setValue(1);
     }
-    if(this.props.initialPage){
+    if (this.props.initialPage) {
       var initialPage = Number(this.props.initialPage);
       if (initialPage > 0) {
         this.goToPage(initialPage, false);
@@ -145,7 +150,7 @@ var ViewPager = createReactClass({
       }
     }
 
-    if (nextProps.dataSource && nextProps.dataSource !== this.props.dataSource) {
+if (nextProps.dataSource && nextProps.dataSource !== this.props.dataSource) {
       var maxPage = nextProps.dataSource.getPageCount() - 1;
       var constrainedPage = Math.max(0, Math.min(this.state.currentPage, maxPage));
       this.setState({
@@ -159,15 +164,13 @@ var ViewPager = createReactClass({
       this.childIndex = Math.min(this.childIndex, constrainedPage);
       this.fling = false;
     }
-
   },
 
   _startAutoPlay() {
     if (!this._autoPlayer) {
-      this._autoPlayer = this.setInterval(
-        () => {this.movePage(1);},
-        this.props.autoScrollInterval
-      );
+      this._autoPlayer = this.setInterval(() => {
+        this.movePage(1);
+      }, this.props.autoScrollInterval);
     }
   },
 
@@ -180,10 +183,9 @@ var ViewPager = createReactClass({
   },
 
   goToPage(pageNumber, animate = true) {
-
     var pageCount = this.props.dataSource.getPageCount();
     if (pageNumber < 0 || pageNumber >= pageCount) {
-      console.error('Invalid page number: ', pageNumber);
+      console.error("Invalid page number: ", pageNumber);
       return
     }
 
@@ -245,12 +247,11 @@ var ViewPager = createReactClass({
       );
     }
   },
-  
-  scrollToOffset(offset: number){
+  scrollToOffset(offset: number) {
     this.state.scrollValue.setValue(offset + this.childIndex)
   },
 
-  _getPage(pageIdx: number, loop:boolean) {
+  _getPage(pageIdx: number, loop: boolean) {
     var dataSource = this.props.dataSource;
     var pageID = dataSource.pageIdentities[pageIdx];
     return (
@@ -307,7 +308,7 @@ var ViewPager = createReactClass({
     var sceneContainerStyle = {
       width: isSSR ? `calc(100vw * ${pagesNum})`: (viewWidth * pagesNum),
       flex: 1,
-      flexDirection: 'row'
+      flexDirection: "row",
     };
 
     this.childIndex = hasLeft ? 1 : 0;
@@ -317,7 +318,8 @@ var ViewPager = createReactClass({
     });
 
     return (
-      <View style={{flex: 1}}
+      <View
+        style={{ flex: 1 }}
         onLayout={(event) => {
             // console.log('ViewPager.onLayout()');
             var viewWidth = event.nativeEvent.layout.width;
@@ -336,15 +338,18 @@ var ViewPager = createReactClass({
           {bodyComponents}
         </Animated.View>
 
-        {this.renderPageIndicator({goToPage: this.goToPage,
-                            pageCount: pageIDs.length,
-                            activePage: this.state.currentPage,
-                            scrollValue: this.state.scrollValue,
-                            scrollOffset: this.childIndex,
-                          })}
+        {this.renderPageIndicator({
+          goToPage: this.goToPage,
+          pageCount: pageIDs.length,
+          activePage: this.state.currentPage,
+          scrollValue: this.state.scrollValue,
+          scrollOffset: this.childIndex,
+          dotColor: this.props.dotColor,
+          activeDotColor: this.props.activeDotColor,
+        })}
       </View>
     );
-  }
+  },
 });
 
 var styles = StyleSheet.create({
